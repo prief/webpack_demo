@@ -1,14 +1,19 @@
 
 
-import React from 'react';
-import ReactDom from 'react-dom';
-import './search.less';
-import '../../commons/index';
-import { a } from './tree-shaking';
-import largeNumber from 'large-number'
-import './search.css';
-import handshake from '../assets/imgs/handshake.png';
-
+// import React from 'react';
+// import './search.less';
+// import '../../commons/index';
+// import { a } from './tree-shaking';
+// import largeNumber from 'large-number'
+// import './search.css';
+// import handshake from '../assets/imgs/handshake.png';
+const React = require('react')
+require('./search.less');
+require('../../commons/index')
+const a = require('./tree-shaking')
+const largeNumber = require('large-number');
+require('./search.css')
+const handshake = require('../assets/imgs/handshake.png')
 
 
 class Search extends React.Component {
@@ -47,7 +52,6 @@ SearchTextContentHMR
     );
   }
 }
-ReactDom.render(
-  <Search />,
-  document.getElementById('root'),
-);
+
+
+module.exports = <Search />
