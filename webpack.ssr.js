@@ -48,7 +48,7 @@ const setMPA = () => {
 const { entry, htmlWebpackPlugins } = setMPA();
 
 module.exports = {
-  mode: 'production',
+  mode: 'none',
   entry,
   output: {
     path: path.resolve(__dirname, 'dist'),
@@ -132,21 +132,21 @@ module.exports = {
     new webpack.optimize.ModuleConcatenationPlugin(),
   ].concat(htmlWebpackPlugins),
   optimization: {
-    splitChunks: {
-      minSize: 0,
-      cacheGroups: {
-        vendors: {
-          test: /(react|react-dom)/,
-          name: 'vendors',
-          chunks: 'all',
-        },
-        commons: {
-          name: 'commons',
-          chunks: 'all',
-          minChunks: 3,
-        },
-      },
-    },
+    // splitChunks: {
+    //   minSize: 0,
+    //   cacheGroups: {
+    //     vendors: {
+    //       test: /(react|react-dom)/,
+    //       name: 'vendors',
+    //       chunks: 'all',
+    //     },
+    //     commons: {
+    //       name: 'commons',
+    //       chunks: 'all',
+    //       minChunks: 3,
+    //     },
+    //   },
+    // },
   },
 
 };

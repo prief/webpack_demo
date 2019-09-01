@@ -6,7 +6,11 @@ const HtmlWP = require('html-webpack-plugin');
 const glob = require('glob');
 const webpack = require('webpack');
 const HtmlWebpackExternalsPlugin = require('html-webpack-externals-plugin');
-
+const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin')
+const SMWP = require('speed-measure-webpack-plugin')
+const { BundleAnalyzerPlugin} = require('webpack-bundle-analyzer');
+const smwp = new SMWP()
+const TerserWebpackPlugin = require('terser-webpack-plugin')
 const setMPA = () => {
   const entry = {};
   const htmlWebpackPlugins = [];
@@ -45,7 +49,7 @@ const setMPA = () => {
 
 const { entry, htmlWebpackPlugins } = setMPA();
 
-module.exports = {
+module.exports = smwp.wrap({
   mode: 'production',
   entry,
   output: {
@@ -57,6 +61,12 @@ module.exports = {
       {
         test: /.js$/,
         use: [
+          {
+            loader:'thread-loader',
+            options:{
+              workers:3
+            }
+          },
           'babel-loader',
           'eslint-loader',
         ],
@@ -126,9 +136,24 @@ module.exports = {
       assetNameRegExp: /\.css$/g,
       cssProcessor: require('cssnano'),
     }),
-    new webpack.optimize.ModuleConcatenationPlugin(),
+    new FriendlyErrorsWebpackPlugin(),
+    function (){
+      this.hooks.done.tap("done",(stats)=>{
+        if(stats.compilation.errors && stats.compilation.errors.length > 0){
+          console.log('build error')
+          process.exit(1)
+        }
+      })
+    },
+    new BundleAnalyzerPlugin(),
+    new webpack.DllReferencePlugin({
+      manifest: require('./dll/library.json')
+    })
   ].concat(htmlWebpackPlugins),
   optimization: {
+    minimizer:[
+      new TerserWebpackPlugin()
+    ],
     splitChunks: {
       minSize: 0,
       cacheGroups: {
@@ -146,4 +171,4 @@ module.exports = {
     },
   },
 
-};
+});
