@@ -10,6 +10,12 @@ const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin')
 const SMWP = require('speed-measure-webpack-plugin')
 const { BundleAnalyzerPlugin} = require('webpack-bundle-analyzer');
 const smwp = new SMWP()
+const PurgecssPlugin = require('purgecss-webpack-plugin')
+ 
+const PATHS = {
+  src: path.join(__dirname, 'src')
+}
+const HSWP = require('hard-source-webpack-plugin')
 const TerserWebpackPlugin = require('terser-webpack-plugin')
 const setMPA = () => {
   const entry = {};
@@ -60,6 +66,7 @@ module.exports = smwp.wrap({
     rules: [
       {
         test: /.js$/,
+        include:path.resolve('src'),
         use: [
           {
             loader:'thread-loader',
@@ -67,7 +74,7 @@ module.exports = smwp.wrap({
               workers:3
             }
           },
-          'babel-loader',
+          'babel-loader?cacheDirectory=true',
           'eslint-loader',
         ],
       }, {
@@ -108,10 +115,41 @@ module.exports = smwp.wrap({
             limit: 1024,
             name: '[name]_[hash:8].[ext]',
           },
-        }],
+        },
+        {
+          loader: 'image-webpack-loader',
+          options: {
+            mozjpeg: {
+              progressive: true,
+              quality: 65
+            },
+            // optipng.enabled: false will disable optipng
+            optipng: {
+              enabled: false,
+            },
+            pngquant: {
+              quality: '65-90',
+              speed: 4
+            },
+            gifsicle: {
+              interlaced: false,
+            },
+            // the webp option will enable WEBP
+            webp: {
+              quality: 75
+            }
+          }
+        },
+      
+      ],
 
       },
     ],
+ 
+  },
+  resolve:{
+    extensions:['.js',".json"],
+    mainFields:['main']
   },
   plugins: [
     // new HtmlWebpackExternalsPlugin({
@@ -148,11 +186,18 @@ module.exports = smwp.wrap({
     new BundleAnalyzerPlugin(),
     new webpack.DllReferencePlugin({
       manifest: require('./dll/library.json')
-    })
+    }),
+    new HSWP(),
+    new PurgecssPlugin({
+      paths: glob.sync(`${PATHS.src}/**/*`,  { nodir: true }),
+    }),
   ].concat(htmlWebpackPlugins),
   optimization: {
     minimizer:[
-      new TerserWebpackPlugin()
+      new TerserWebpackPlugin({
+        parallel:true,
+        cache:true
+      })
     ],
     splitChunks: {
       minSize: 0,

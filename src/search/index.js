@@ -7,6 +7,7 @@ import '../../commons/index';
 import { a } from './tree-shaking';
 import largeNumber from 'large-number'
 import './search.css';
+import h2 from '../assets/imgs/handshake2.png'
 import handshake from '../assets/imgs/handshake.png';
 
 
@@ -42,6 +43,7 @@ SearchTextContentHMR
         }{
           res
         }
+        <img src={ h2 } />
         <img src={handshake} onClick={this.loadComponent.bind(this)} />
       </div>
     );
